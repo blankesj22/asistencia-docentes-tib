@@ -1,0 +1,21 @@
+docente
+  - uuid
+  - nombres
+  - apellidos
+  - dni
+  - correo
+  - contrasenia
+
+REGLAS: [* Solo debe haber un registro con esta misma fecha]
+asistencia
+  - uuid (este id se usará para el código QR)
+  - anio
+  - mes
+  - dia
+  - hora_ingreso
+  - comentario
+  - id_docente (uuid del docente)
+  - docente (Nombres y Apellidos del docente)
+  - dni
+  - qr
+
