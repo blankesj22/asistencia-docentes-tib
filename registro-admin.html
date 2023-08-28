@@ -52,13 +52,8 @@
       />
       <br />
       <label for="contraseña">Contraseña</label>
-      <input
-        type="password"
-        name="contraseña"
-        id="contraseña"
-        placeholder="Ingrese su contraseña"
-        required
-      />
+      <input type="password" name="contrasenia" id="contrasenia"
+      placeholder="Ingrese su contraseña" required />
       <br />
       <label for="contraseña2">Confirmar contraseña</label>
       <input
@@ -72,7 +67,17 @@
       <input type="submit" value="Registrar" />
     </form>
     <script type="module">
-      import { firestore, firestoreModule } from "./lib/firebase.js";
+      import {
+        firestore,
+        firestoreModule,
+        authModule,
+        auth,
+      } from "./lib/firebase.js";
+
+      const { collection, where, query, limit, getDocs, doc, setDoc } =
+        firestoreModule;
+
+      const usuarioRef = collection(firestore, "usuario");
 
       // Captura el evento submit del formulario y recoge los datos en un objeto
       const form = document.querySelector("form");
@@ -84,16 +89,32 @@
         console.log(data);
 
         // Envía los datos a la base de datos
-        firestore
-          .collection("usuario")
-          .add(data)
-          .then((docRef) => {
-            console.log("Document written with ID: ", docRef.id);
-            alert("Usuario registrado correctamente");
+        authModule
+          .createUserWithEmailAndPassword(auth, data.correo, data.contrasenia)
+          .then(async (userCredential) => {
+            // Signed in
+            const user = userCredential.user;
+
+            console.log(JSON.stringify(user));
+
+            await setDoc(doc(firestore, "usuario", user.uid),  {
+              nombre: data.nombre,
+              apellido: data.apellido,
+              dni: data.dni,
+              correo: data.correo,
+              rol: "admin",
+              active: true,
+            });
+
             window.location.href = "login.html";
+
+            // ...
           })
           .catch((error) => {
-            console.error("Error adding document: ", error);
+            alert(error);
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            // ..
           });
       });
     </script>

@@ -48,7 +48,19 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+    <script type="module">
+      // Aquí puedes añadir la lógica para autenticar al usuario
+      import {
+        authModule,
+        auth,
+        firestore,
+        firestoreModule,
+      } from "./lib/firebase.js";
+
+      const { signInWithEmailAndPassword } = authModule;
+
+      const { getDoc, doc } = firestoreModule;
+
       document.addEventListener("DOMContentLoaded", function () {
         const loginForm = document.getElementById("loginForm");
 
@@ -57,19 +69,36 @@
           const username = document.getElementById("username").value;
           const password = document.getElementById("password").value;
 
-          // Aquí puedes añadir la lógica para autenticar al usuario
-          if (username === "admin" && password === "1234") {
-            if (localStorage.getItem("usuario") == null) {
-              localStorage.setItem("usuario", {
-                username: username,
-                password: password,
-              });
+          // PARA LOGUEARSE
+          signInWithEmailAndPassword(auth, username, password)
+            .then(async (userCredential) => {
+              // Signed in
+              const user = userCredential.user;
+              console.log(user);
 
-              window.location.href = "index.html";
-            }
-          } else {
-            alert("Nombre de usuario o contraseña incorrecta");
-          }
+              const docRef = doc(firestore, "usuario", user.uid);
+              const docSnap = await getDoc(docRef);
+
+              if (docSnap.exists()) {
+                console.log("Document data:", docSnap.data());
+                //guarda en localstorage
+                localStorage.setItem("usuario", JSON.stringify(docSnap.data()));
+
+                //redirecciona a la pagina de inicio
+                window.location.href = "index.html";
+              } else {
+                // docSnap.data() will be undefined in this case
+                console.log("No such document!");
+
+                alert("No existe el usuario");
+              }
+              // ...
+            })
+            .catch((error) => {
+              const errorCode = error.code;
+              const errorMessage = error.message;
+              console.log(error);
+            });
         });
       });
     </script>
@@ -83,7 +112,12 @@
 
       const usuariosRef = collection(firestore, "usuario");
 
-      const q = query(usuariosRef, where("active", "==", true), limit(1));
+      const q = query(
+        usuariosRef,
+        where("rol", "==", "admin"),
+        where("active", "==", true),
+        limit(1)
+      );
 
       const querySnapshot = await getDocs(q);
 
@@ -99,23 +133,7 @@
     </script>
 
     <!-- <script type="module">
-      import { authFirebaseModule, auth } from "./firebase.js";
-
-      /*  PARA LOGUEARSE
-      const auth = getAuth();
-      signInWithEmailAndPassword(auth, 'blnk@gmail.com', '1234')
-        .then((userCredential) => {
-          // Signed in
-          const user = userCredential.user;
-          alert(user);
-          // ...
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          alert(error);
-        });
-      */
+      
 
       authFirebaseModule
         .createUserWithEmailAndPassword(auth, "test-1@gmail.com", "123456")

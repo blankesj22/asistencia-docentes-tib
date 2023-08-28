@@ -1,4 +1,12 @@
-docente
+usuario
+  - uuid
+  - nombres
+  - apellidos
+  - dni
+  - correo
+  - rol
+  
+  docente
   - uuid
   - nombres
   - apellidos
