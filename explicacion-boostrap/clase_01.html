@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Ejemplo Bootstrap</title>
+    <!-- Incluir Bootstrap CSS -->
+    <link href="./bootstrap.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Navegación -->
+    <!-- 'nav' crea un contenedor de navegación. 'bg-danger' pone el fondo en rojo. -->
+    <nav class="nav bg-danger">
+      <!-- 'nav-link' estiliza el enlace de navegación. 'active' resalta el enlace activo. -->
+      <a class="nav-link active" href="#">Inicio</a>
+      <a class="nav-link" href="#">Acerca de</a>
+      <a class="nav-link" href="#">Contacto</a>
+    </nav>
+
+    <!-- 'container-fluid' hace que el contenedor ocupe todo el ancho disponible -->
+    <div class="container-fluid">
+      <!-- 'row' crea una fila en la que se pueden agregar columnas -->
+      <div class="row">
+        <!-- Barra lateral -->
+        <!-- 'p-5' agrega padding en todas las direcciones. 'col-md-2' establece el ancho en pantallas medianas. 'bg-info' pone el fondo en azul. 'text-white' pone el texto en blanco. -->
+        <div class="p-5 col-md-2 bg-info text-white">Barra lateral</div>
+
+        <!-- Contenido -->
+        <!-- 'p-5' agrega padding. 'col-md-8' establece el ancho en pantallas medianas. 'bg-success' pone el fondo en verde. 'text-white' pone el texto en blanco. -->
+        <div class="p-5 col-md-8 bg-success text-white">Contenido aquí</div>
+
+        <!-- Pie de página -->
+        <!-- 'col-md-12' hace que la columna ocupe todo el ancho en pantallas medianas. 'p-3' agrega padding. 'bg-primary' pone el fondo en azul oscuro. 'text-white' pone el texto en blanco. -->
+        <div class="col-md-12 p-3 bg-primary text-white">Pie de página</div>
+      </div>
+    </div>
+    <!-- Incluir Bootstrap JS -->
+    <script src="./bootstrap.min.js"></script>
+  </body>
+</html>
