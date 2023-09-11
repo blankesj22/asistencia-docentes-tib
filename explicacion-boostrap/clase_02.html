@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tareas en local</title>
+    <link href="./bootstrap.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h1>Lista de Tareas</h1>
+      <form id="task-form">
+        <div class="input-group mb-3">
+          <input
+            type="text"
+            class="form-control"
+            id="task-input"
+            placeholder="Nueva tarea"
+          />
+          <button class="btn btn-primary" type="submit">Añadir</button>
+        </div>
+      </form>
+      <ul class="list-group" id="task-list">
+        <!-- Las tareas irán aquí -->
+      </ul>
+    </div>
+
+    <script>
+      // Guarda las tareas en Local Storage
+      // Local Storage es una forma de guardar datos en el navegador del usuario
+      function saveTasks(tasks) {
+        // Convertimos la lista de tareas a una cadena JSON y la guardamos
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+      }
+
+      // Carga las tareas desde Local Storage
+      function loadTasks() {
+        // Obtenemos las tareas guardadas como una cadena JSON
+        const tasks = localStorage.getItem("tasks");
+        // Convertimos la cadena JSON a una lista y la retornamos
+        // Si no hay tareas guardadas, retornamos una lista vacía
+        return tasks ? JSON.parse(tasks) : [];
+      }
+
+      // Muestra las tareas en la página
+      function displayTasks(tasks) {
+        // Obtenemos el elemento donde se mostrarán las tareas
+        const taskList = document.getElementById("task-list");
+        // Limpiamos la lista para empezar de cero
+        taskList.innerHTML = "";
+        // Recorremos cada tarea en la lista
+        tasks.forEach((task, index) => {
+          // Creamos un nuevo elemento de lista para la tarea
+          const listItem = document.createElement("li");
+          listItem.className =
+            "list-group-item d-flex justify-content-between align-items-center";
+          // Establecemos el texto de la tarea
+          listItem.textContent = task;
+          // Creamos un botón para eliminar la tarea
+          const deleteButton = document.createElement("button");
+          deleteButton.className = "btn btn-danger";
+          deleteButton.textContent = "Eliminar";
+          // Agregamos una acción al hacer clic en el botón de eliminar
+          deleteButton.addEventListener("click", () => {
+            // Eliminamos la tarea de la lista
+            tasks.splice(index, 1);
+            // Guardamos la nueva lista de tareas
+            saveTasks(tasks);
+            // Actualizamos la lista de tareas en la página
+            displayTasks(tasks);
+          });
+          // Agregamos el botón de eliminar a la tarea
+          listItem.appendChild(deleteButton);
+          // Agregamos la tarea a la lista en la página
+          taskList.appendChild(listItem);
+        });
+      }
+
+      // Cargamos las tareas al iniciar la página
+      const tasks = loadTasks();
+      displayTasks(tasks);
+
+      // Escuchamos el evento de enviar el formulario para añadir una nueva tarea
+      const form = document.getElementById("task-form");
+      form.addEventListener("submit", (e) => {
+        // Evitamos que la página se recargue
+        e.preventDefault();
+        // Obtenemos el valor ingresado
+        const taskInput = document.getElementById("task-input");
+        const newTask = taskInput.value;
+        // Añadimos la nueva tarea a la lista
+        tasks.push(newTask);
+        // Guardamos la nueva lista de tareas
+        saveTasks(tasks);
+        // Actualizamos la lista de tareas en la página
+        displayTasks(tasks);
+        // Limpiamos el campo de texto
+        taskInput.value = "";
+      });
+    </script>
+
+    <script src="./bootstrap.min.js"></script>
+  </body>
+</html>
