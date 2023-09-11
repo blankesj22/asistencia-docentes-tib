@@ -51,8 +51,14 @@
         tasks.forEach((task, index) => {
           // Creamos un nuevo elemento de lista para la tarea
           const listItem = document.createElement("li");
+          // Agregamos varias clases CSS para darle estilo y funcionalidad al elemento
+          // - 'list-group-item': Estilo básico para un elemento de una lista de Bootstrap
+          // - 'd-flex': Activa el modelo de diseño flexible para poder usar flexbox
+          // - 'justify-content-between': Alinea los elementos hijos para que tengan espacio entre ellos
+          // - 'align-items-center': Alinea los elementos hijos verticalmente en el centro
           listItem.className =
             "list-group-item d-flex justify-content-between align-items-center";
+
           // Establecemos el texto de la tarea
           listItem.textContent = task;
           // Creamos un botón para eliminar la tarea
