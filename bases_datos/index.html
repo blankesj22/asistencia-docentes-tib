@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Tareas con SQLite</title>
     <link href="./dist/bootstrap.min.css" rel="stylesheet" />
+    <link href="./dist/fontawesome-all.min.css" rel="stylesheet" />
     <link rel="icon" href="./assets/icono.png" type="image/png" />
     <script src="./dist/sql-wasm.js"></script>
     <script src="./dist/FileSaver.min.js"></script>
@@ -14,9 +15,11 @@
       <h1>Lista de Tareas</h1>
       <div class="d-flex mb-3">
         <button id="borrar-todo-button" class="btn btn-secondary me-2">
+          <i class="fa-solid fa-trash"></i>
           Borrar todo
         </button>
         <button id="exportar-button" class="btn btn-secondary">
+          <i class="fa-solid fa-database"></i>
           Exportar Base de datos
         </button>
       </div>
@@ -28,13 +31,19 @@
             id="task-input"
             placeholder="Nueva tarea"
           />
-          <button class="btn btn-primary" type="submit">Añadir</button>
+          <button class="btn btn-primary" type="submit">
+            <i class="fa-solid fa-plus"></i>
+            Añadir
+          </button>
         </div>
       </form>
       <ul class="list-group" id="task-list">
         <!-- Las tareas irán aquí -->
       </ul>
     </div>
+
+    <script src="./dist/bootstrap.min.js"></script>
+    <script src="./dist/fontawesome-all.min.js"></script>
 
     <script>
       // Esta función sirve para inicializar la base de datos SQLite.
@@ -71,14 +80,24 @@
         db.run("INSERT INTO tareas VALUES (?,?,?)", [null, tarea, 0]);
       }
 
-      // Esta función obtiene todas las tareas de la base de datos
+      // Aquí estamos creando una función que se llama 'obtenerTareas'. La función recibe como parámetro 'db', que representa una base de datos.
       function obtenerTareas(db) {
+        // Aquí creamos una variable llamada 'stmt'. La usamos para preparar una consulta SQL que selecciona todo de la tabla 'tareas'.
         const stmt = db.prepare("SELECT * FROM tareas");
+
+        // Creamos una lista vacía llamada 'tareas' donde vamos a guardar los resultados de la consulta.
         const tareas = [];
+
+        // Este 'while' va a seguir corriendo mientras la consulta tenga más resultados.
         while (stmt.step()) {
+          // Aquí creamos una variable llamada 'row' para guardar cada fila que obtengamos de la consulta.
           const row = stmt.getAsObject();
+
+          // Agregamos esa fila a nuestra lista 'tareas'.
           tareas.push(row);
         }
+
+        // Finalmente, devolvemos la lista 'tareas' para que quien use la función pueda ver todos los resultados.
         return tareas;
       }
 
@@ -101,11 +120,22 @@
       }
 
       // Aquí creamos un botón para cambiar el estado de una tarea
-      function fnToggleButton(db, task) {
+      function fnCompletarTarea(db, task) {
+        // Creamos el icono
+        const icon = document.createElement("i");
+
+        // Si la tarea ha sido completada, entonces mostrará un cuadrado vacío (fa-square)
+        // Sino ha sido completada la tarea, mostrará una palomita (fa-check)
+        if (task.completada == 1) {
+          icon.classList = "fa-regular fa-square";
+        } else {
+          icon.className = "fa-solid fa-check";
+        }
+
         // Creamos un botón para cambiar el estado de la tarea
         const toggleButton = document.createElement("button");
         toggleButton.className = "btn btn-secondary me-1";
-        toggleButton.textContent = "Completada";
+
         // Agregamos una acción al hacer clic en el botón de cambiar el estado
         toggleButton.addEventListener("click", () => {
           const completada = task.completada == 0 ? 1 : 0;
@@ -114,94 +144,101 @@
           actualizarTarea(db, task.id, completada);
 
           // Actualizamos la lista de tareas en la página
-          displayTasks(db);
+          fnMostrarTareas(db);
         });
+
+        toggleButton.appendChild(icon);
 
         return toggleButton;
       }
 
       // Aquí creamos un botón para eliminar una tarea
-      function fnBotonEliminar(db, task) {
+      function fnBotonEliminarTarea(db, task) {
+        const icon = document.createElement("i");
+        icon.classList = "fa-solid fa-trash";
+
         // Creamos un botón para eliminar la tarea
         const deleteButton = document.createElement("button");
         deleteButton.className = "btn btn-danger";
-        deleteButton.textContent = "Eliminar";
+
         // Agregamos una acción al hacer clic en el botón de eliminar
         deleteButton.addEventListener("click", () => {
           // Eliminamos la tarea de la lista
           eliminarTarea(db, task.id);
 
           // Actualizamos la lista de tareas en la página
-          displayTasks(db);
-
-          console.log(task);
+          fnMostrarTareas(db);
         });
+
+        deleteButton.appendChild(icon);
 
         return deleteButton;
       }
 
-      // Esta función muestra todas las tareas en la página web
-      function displayTasks(db) {
-        // Obtenemos la lista de tareas actualizada
-        const tasks = obtenerTareas(db);
+      // Esta función contiene el número en que va la tarea y el texto de la tarea
+      function fnContenidoTarea(index, task) {
+        const content = document.createElement("div");
+        content.className = "d-flex align-items-center";
 
-        // Obtenemos el elemento donde se mostrarán las tareas
-        const taskList = document.getElementById("task-list");
-        // Limpiamos la lista para empezar de cero
-        taskList.innerHTML = "";
-        // Recorremos cada tarea en la lista
-        tasks.forEach((task, index) => {
-          // Creamos un nuevo elemento de lista para la tarea
-          const listItem = document.createElement("li");
-          // Agregamos varias clases CSS para darle estilo y funcionalidad al elemento
-          // - 'list-group-item': Estilo básico para un elemento de una lista de Bootstrap
-          // - 'd-flex': Activa el modelo de diseño flexible para poder usar flexbox
-          // - 'justify-content-between': Alinea los elementos hijos para que tengan espacio entre ellos
-          // - 'align-items-center': Alinea los elementos hijos verticalmente en el centro
-          listItem.className =
-            "list-group-item d-flex justify-content-between align-items-center";
+        const spanNumero = document.createElement("span");
+        spanNumero.className = "badge bg-success rounded-pill me-2";
+        spanNumero.textContent = index + 1;
 
-          // Agregamos una clase para indicar si la tarea está completada o no
-          if (task.completada) {
-            listItem.classList.add("list-group-item-success");
-          } else {
-            listItem.classList.add("list-group-item-danger");
-          }
+        const spanTarea = document.createElement("span");
+        spanTarea.textContent = task.tarea;
 
-          // Establecemos el texto de la tarea
-          listItem.textContent = index + 1 + ". " + task.tarea;
+        // Añadimos el número y el texto de la tarea al elemento div
+        content.appendChild(spanNumero);
+        content.appendChild(spanTarea);
 
-          // Creamos un div para agrupar los botones
-          const buttonGroup = document.createElement("div");
+        return content;
+      }
 
-          // Agregamos varias clases CSS para darle estilo y funcionalidad al elemento
-          // - 'btn-group': Agrupa los botones para que se vean juntos
-          // - 'btn-group-sm': Establece el tamaño de los botones
-          buttonGroup.className = "btn-group btn-group-sm";
+      // Esta función contiene el grupo de botones para cambiar el estado y eliminar la tarea
+      function fnBotonesTarea(db, task) {
+        // Creamos un div para agrupar los botones
+        const buttonGroup = document.createElement("div");
 
-          // Agregamos el botón de cambiar el estado a la tarea
-          buttonGroup.appendChild(fnToggleButton(db, task));
+        // Agregamos varias clases CSS para darle estilo y funcionalidad al elemento
+        // - 'btn-group': Agrupa los botones para que se vean juntos
+        // - 'btn-group-sm': Establece el tamaño de los botones
+        buttonGroup.className = "btn-group btn-group-sm ms-1";
 
-          // Agregamos el botón de eliminar a la tarea
-          buttonGroup.appendChild(fnBotonEliminar(db, task));
+        // Agregamos el botón de cambiar el estado a la tarea
+        buttonGroup.appendChild(fnCompletarTarea(db, task));
 
-          // Agregamos el grupo de botones a la tarea
-          listItem.appendChild(buttonGroup);
+        // Agregamos el botón de eliminar a la tarea
+        buttonGroup.appendChild(fnBotonEliminarTarea(db, task));
 
-          // Agregamos la tarea a la lista en la página
-          taskList.appendChild(listItem);
+        return buttonGroup;
+      }
+
+      function fnConfigBotonExportar(db) {
+        // Obtenemos el botón para exportar la base de datos
+        const exportButton = document.getElementById("exportar-button");
+
+        // Escuchamos el evento de hacer clic en el botón de exportar
+        exportButton.addEventListener("click", () => {
+          const data = db.export();
+          const blob = new Blob([data], { type: "application/octet-stream" });
+          saveAs(blob, "database.sqlite");
         });
       }
 
-      // Finalmente, esta función inicializa todo cuando se carga la página
-      async function init() {
-        const db = await sqlite();
+      function fnConfigBotonEliminar(db) {
+        // Obtenemos el botón para borrar todas las tareas
+        const deleteAllButton = document.getElementById("borrar-todo-button");
 
-        crearTablaSiNoExiste(db);
+        // Escuchamos el evento de hacer clic en el botón de borrar todas las tareas
+        deleteAllButton.addEventListener("click", () => {
+          // Eliminamos todas las tareas de la base de datos
+          eliminarTodo(db);
+          // Obtenemos la lista de tareas actualizada
+          fnMostrarTareas(db);
+        });
+      }
 
-        // Cargamos las tareas al iniciar la página
-        displayTasks(db);
-
+      function fnConfigBotonAgregarTarea(db) {
         // Escuchamos el evento de enviar el formulario para añadir una nueva tarea
         const form = document.getElementById("task-form");
 
@@ -214,37 +251,78 @@
           // Guardamos la nueva lista de tareas
           insertarTarea(db, newTask);
           // Obtenemos la lista de tareas actualizada
-          displayTasks(db);
+          fnMostrarTareas(db);
           // Limpiamos el campo de texto
           taskInput.value = "";
         });
+      }
 
-        // Obtenemos el botón para exportar la base de datos
-        const exportButton = document.getElementById("exportar-button");
+      // Esta función muestra todas las tareas en la página web
+      function fnMostrarTareas(db) {
+        // Obtenemos la lista de tareas actualizada
+        const listaTareas = obtenerTareas(db);
 
-        // Escuchamos el evento de hacer clic en el botón de exportar
-        exportButton.addEventListener("click", () => {
-          const data = db.export();
-          const blob = new Blob([data], { type: "application/octet-stream" });
-          saveAs(blob, "database.sqlite");
+        // Obtenemos el elemento donde se mostrarán las tareas
+        const taskList = document.getElementById("task-list");
+
+        // Limpiamos la lista para empezar de cero
+        taskList.innerHTML = "";
+
+        // Recorremos cada tarea en la lista
+        listaTareas.forEach((task, index) => {
+          // Creamos un nuevo elemento de lista para la tarea
+          const listItem = document.createElement("li");
+
+          // Agregamos varias clases CSS para darle estilo y funcionalidad al elemento
+          // - 'list-group-item': Estilo básico para un elemento de una lista de Bootstrap
+          // - 'd-flex': Activa el modelo de diseño flexible para poder usar flexbox
+          // - 'justify-content-between': Alinea los elementos hijos para que tengan espacio entre ellos
+          // - 'align-items-center': Alinea los elementos hijos verticalmente en el centro
+          listItem.className =
+            "list-group-item d-flex justify-content-between align-items-center";
+
+          // Agregamos una clase para indicar si la tarea está completada o no
+          // Si la tarea está completada, entonces se mostrará en verde (success)
+          // Si la tarea no está completada, entonces se mostrará en rojo (danger)
+          if (task.completada) {
+            listItem.classList.add("list-group-item-success");
+          } else {
+            listItem.classList.add("list-group-item-danger");
+          }
+
+          // Agregamos el contenido de la tarea al elemento de la lista
+          listItem.appendChild(fnContenidoTarea(index, task));
+
+          // Agregamos el grupo de botones a la tarea
+          listItem.appendChild(fnBotonesTarea(db, task));
+
+          // Agregamos la tarea a la lista en la página
+          taskList.appendChild(listItem);
         });
+      }
 
-        // Obtenemos el botón para borrar todas las tareas
-        const deleteAllButton = document.getElementById("borrar-todo-button");
+      // Finalmente, esta función inicializa todo cuando se carga la página
+      async function init() {
+        const db = await sqlite();
 
-        // Escuchamos el evento de hacer clic en el botón de borrar todas las tareas
-        deleteAllButton.addEventListener("click", () => {
-          // Eliminamos todas las tareas de la base de datos
-          eliminarTodo(db);
-          // Obtenemos la lista de tareas actualizada
-          displayTasks(db);
-        });
+        // Creamos la tabla de tareas si no existe
+        crearTablaSiNoExiste(db);
+
+        // Cargamos las tareas al iniciar la página
+        fnMostrarTareas(db);
+
+        // Configuramos el botón para agregar una nueva tarea
+        fnConfigBotonAgregarTarea(db);
+
+        // Configuramos el botón para exportar la base de datos
+        fnConfigBotonExportar(db);
+
+        // Configuramos el botón para borrar todas las tareas
+        fnConfigBotonEliminar(db);
       }
 
       // Iniciamos la aplicación
       init();
     </script>
-
-    <script src="./dist/bootstrap.min.js"></script>
   </body>
 </html>
