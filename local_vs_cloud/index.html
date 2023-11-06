@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta nombres="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agenda de Contactos</title>
+  </head>
+  <body>
+    <h2>Agregar Contacto</h2>
+    <form id="contactForm">
+      <label for="nombres">Nombres:</label><br />
+      <input type="text" id="nombres" nombres="nombres" required /><br />
+      <label for="apellidos">Apellidos:</label><br />
+      <input type="text" id="apellidos" nombres="apellidos" required /><br />
+      <label for="direccion">Dirección:</label><br />
+      <input type="text" id="direccion" nombres="direccion" required /><br />
+      <label for="celular">Celular:</label><br />
+      <input type="tel" id="celular" nombres="celular" required /><br /><br />
+      <input type="button" id="btnAgregar" value="Añadir Contacto" />
+    </form>
+
+    <h2>Contactos</h2>
+    <div id="contactList">
+      <!-- Aquí se añadirán los contactos -->
+    </div>
+
+    <script src="local.js"></script>
+    <!-- <script type="module" src="nube.js"></script> -->
+  </body>
+</html>
